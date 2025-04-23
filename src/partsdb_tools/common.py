@@ -133,8 +133,8 @@ def load_part_types():
     return set(part_types_dict.keys()), part_types_dict
 
 
-def load_manufacturers():
-    with open('./manufacturers/manufacturers.json') as f:
+def load_manufacturers(path: Path):
+    with open(path) as f:
         manufacturers = json.load(f)
         return [x['name'] for x in manufacturers] + [x['full_name'] for x in manufacturers if
                                                      x['full_name'] is not None and len(x['full_name']) > 0]

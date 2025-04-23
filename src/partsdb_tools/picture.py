@@ -3,6 +3,7 @@ import cv2 as cv
 import numpy as np
 
 from pathlib import Path
+from .common import load_manufacturers
 
 min_size_x = 640*2
 min_size_y = 480*2
@@ -57,6 +58,10 @@ def main():
     args = parser.parse_args()
 
     out_img_params = OutputImageParameters(args.output_image_size_x, args.output_image_size_y, 20)
+    if args.manufacturers is not None:
+        manufacturers = load_manufacturers(args.manufacturers.resolve())
+    else:
+        manufacturers = None
 
     image_collections = load_images(args.input_dir, args.background_image)
     for collection in image_collections:
@@ -69,7 +74,7 @@ def main():
                 debug=args.debug
             )
             for processed_image_name in processed_images:
-                save_image(processed_images[processed_image_name], args.output_dir, processed_image_name)
+                save_image(processed_images[processed_image_name], args.output_dir, processed_image_name, manufacturers)
         except Exception as e:
             print(f"Exception while processing {collection}: ", e)
 
@@ -144,13 +149,14 @@ def load_images(input_dir: Path, background_image: Path):
     return image_collection
 
 
-def save_image(image, output_dir, filename):
+def save_image(image, output_dir, filename, manufacturers):
     manufacturer_name = filename.split("__")[0]
-    write_path = output_dir.joinpath(manufacturer_name).joinpath(filename).with_suffix(".jpg")
-    write_path.parent.mkdir(parents=True, exist_ok=True)
-    status = cv.imwrite(write_path.resolve(), image)
-    if not status:
-        print("Error writing image:", write_path.resolve())
+    if manufacturer_name in manufacturers or manufacturers is None:
+        write_path = output_dir.joinpath(manufacturer_name).joinpath(filename).with_suffix(".jpg")
+        write_path.parent.mkdir(parents=True, exist_ok=True)
+        status = cv.imwrite(write_path.resolve(), image)
+        if not status:
+            print("Error writing image:", write_path.resolve())
 
 
 def is_small_object(bounding_box):
