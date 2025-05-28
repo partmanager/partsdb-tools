@@ -37,10 +37,10 @@ def main():
                 print("invalid manufacturer", part["manufacturer"])
 
             if not validate_part_type(part, part_types):
-                print("invalid part type", part["part_type"])
+                print("invalid part type", part["partType"])
 
             if not validate_field_storage_condition(part):
-                print("invalid field storage condition", part["storage_condition"])
+                print("invalid field storage condition", part["storageConditions"])
 
             if not test_validate_files_field(part):
                 print("invalid file field", part["files"])
@@ -70,6 +70,9 @@ def validate_part_type(part, part_types):
 
 def validate_field_storage_condition(part):
     if 'storageConditions' in part:
+        if 'MSLevel' not in part['storageConditions']:
+            print(f"Missing MSLevel field in part {part['manufacturer']} {part['partNumber']}")
+            return False
         if part['storageConditions']['MSLevel'] not in msl_classification:
             return False
     return True
