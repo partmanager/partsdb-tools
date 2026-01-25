@@ -1,6 +1,15 @@
 from ..common import load_packaging_types
 
-order_number_allowed_fields = ['12NC', 'Alias', 'Status', 'Code', 'Type', 'Qty', 'PackagingData']
+order_number_allowed_fields = [
+    '12NC',
+    'EAN13',
+    'SKU',
+    'alias',
+    'status',
+    'code',
+    'type',
+    'qty',
+    'packagingData']
 
 def validate_order_number_fields(part):
     for order_number in part['orderNumbers']:
@@ -15,7 +24,8 @@ def validate_order_number_fields(part):
 
 
 def validate_packaging_type(order_number):
-    if 'Type' in order_number:
-        if order_number['Type'] not in load_packaging_types():
+    if 'type' in order_number:
+        if order_number['type'] not in load_packaging_types():
             return False
     return True
+
