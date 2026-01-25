@@ -35,12 +35,23 @@ def cleanup_json_data(data):
     else:
         return data
 
+def remove_empty_keys(data):
+    result = []
+    for part in data:
+        out = {}
+        for k, v in part.items():
+            if v:
+                out[k] = v
+        result.append(out)
+    return result
+
 
 def cleanup_and_sort_json_files(f):
     try:
         with open(str(f)) as jsonfile:
             content = json.load(jsonfile)
             cleanup_json = cleanup_json_data(content)
+            cleanup_json = remove_empty_keys(cleanup_json)
             sorted_json = sorted(cleanup_json, key=lambda x: x['manufacturer'] + x['partNumber'])
             fixed_content = json.dumps(sorted_json, indent='\t')
             jsonfile.close()
