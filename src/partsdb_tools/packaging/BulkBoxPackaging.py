@@ -3,14 +3,14 @@ from PackagingBase import PackagingBase
 from .Box import Box
 
 
-class BoxPackaging(PackagingBase):
+class BulkBoxPackaging(PackagingBase):
     def __init__(self, code, qty: int | Decimal, box: Box | None):
         super().__init__(code, qty)
         self.box = box
 
     def to_dict(self):
         result = {
-            'type': "Box",
+            'type': "Bulk/Box",
             'code': self.code,
             'qty': self.qty
         }

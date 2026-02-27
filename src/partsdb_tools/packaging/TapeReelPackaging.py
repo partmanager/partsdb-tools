@@ -1,18 +1,18 @@
 from decimal import Decimal
+from PackagingBase import PackagingBase
 from .Reel import Reel
 from .Tape import Tape
 
 
-class TapeReelPackaging:
-    def __init__(self, code, qty: int | Decimal, reel: Reel, tape: Tape):
-        self.code = code
-        self.qty = qty
+class TapeReelPackaging(PackagingBase):
+    def __init__(self, code, qty: int | Decimal, reel: Reel | None, tape: Tape):
+        super().__init__(code, qty)
         self.reel = reel
         self.tape = tape
 
     def to_dict(self):
         result = {
-            'type': f"{self.tape.tape_type} / Reel",
+            'type': f"{self.tape.tape_type}/Reel",
             'code': self.code,
             'qty': self.qty
         }

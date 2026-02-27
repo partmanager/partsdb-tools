@@ -1,5 +1,13 @@
 class Box:
     def __init__(self, length, width, height, weight):
+        #      +-------+
+        #     /       /| h
+        #    /       / |
+        #   +-------+  /
+        #   |       | /  l
+        #   |       |/
+        #   +-------+
+        #   <-- w -->
         self.length = length
         self.width = width
         self.height = height

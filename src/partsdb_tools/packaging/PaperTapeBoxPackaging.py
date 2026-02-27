@@ -1,17 +1,17 @@
 from decimal import Decimal
+from PackagingBase import PackagingBase
 from .Box import Box
 
 
-class PaperTapeBoxPackaging:
-    def __init__(self, code, qty: int | Decimal, box: Box):
-        self.code = code
-        self.qty = qty
+class PaperTapeBoxPackaging(PackagingBase):
+    def __init__(self, code, qty: int | Decimal, box: Box | None):
+        super().__init__(code, qty)
         self.box = box
         self.tape = None
 
     def to_dict(self):
         result = {
-            'type': "Paper Tape / Box",
+            'type': "PaperTape/Box",
             'code': self.code,
             'qty': self.qty
         }
