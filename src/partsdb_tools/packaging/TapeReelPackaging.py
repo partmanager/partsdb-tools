@@ -15,7 +15,7 @@ class TapeReelPackaging(PackagingBase):
         if self.reel and self.reel.to_dict():
             result['packagingData'] = {}
             result['packagingData']['reel'] = self.reel.to_dict()
-        if self.tape.to_dict():
+        if self.tape and self.tape.to_dict():
             if 'packagingData' not in result:
                 result['packagingData'] = {}
             result['packagingData']['tape'] = self.tape.to_dict()
