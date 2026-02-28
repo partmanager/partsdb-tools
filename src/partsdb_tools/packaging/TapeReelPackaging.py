@@ -6,16 +6,12 @@ from .Tape import Tape
 
 class TapeReelPackaging(PackagingBase):
     def __init__(self, code, qty: int | Decimal, reel: Reel | None, tape: Tape):
-        super().__init__(code, qty)
+        super().__init__('Tape/Reel', code, qty)
         self.reel = reel
         self.tape = tape
 
     def to_dict(self):
-        result = {
-            'type': f"{self.tape.tape_type}/Reel",
-            'code': self.code,
-            'qty': self.qty
-        }
+        result = super().to_dict()
         if self.reel and self.reel.to_dict():
             result['packagingData'] = {}
             result['packagingData']['reel'] = self.reel.to_dict()

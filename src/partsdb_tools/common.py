@@ -142,7 +142,7 @@ def load_manufacturers(path: Path):
 
 def load_packaging_types():
     return ['Bag', 'Bulk', 'Cut Tape', 'Embossed Tape / Reel', 'Paper Tape / Reel', 'Foil',
-            'shrink wrap', 'Tube', 'Tray', '', 'Tape & Reel', '13” Reel', '7" reel']
+            'shrink wrap', 'Tube', 'Tray', '', 'Tape & Reel', '13” Reel', '7" reel', 'Tape/Reel']
 
 
 def load_msl_classification():

@@ -3,18 +3,14 @@ from .PackagingBase import PackagingBase
 from .Box import Box
 
 
-class PaperTapeBoxPackaging(PackagingBase):
+class TapeBoxPackaging(PackagingBase):
     def __init__(self, code, qty: int | Decimal, box: Box | None):
-        super().__init__(code, qty)
+        super().__init__('Tape/Box', code, qty)
         self.box = box
         self.tape = None
 
     def to_dict(self):
-        result = {
-            'type': "PaperTape/Box",
-            'code': self.code,
-            'qty': self.qty
-        }
+        result = super().to_dict()
         if self.box and self.box.to_dict():
             result['packagingData'] = {}
             result['packagingData']['box'] = self.box.to_dict()

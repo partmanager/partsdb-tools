@@ -16,7 +16,7 @@ class Tape:
         self.k = k
 
     def to_dict(self):
-        result = {}
+        result = {'type': self.tape_type}
         if self.pin_1_quadrant:
             result['pin_1_quadrant'] = self.pin_1_quadrant
         if self.w:

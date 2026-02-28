@@ -5,15 +5,11 @@ from .Box import Box
 
 class BulkBoxPackaging(PackagingBase):
     def __init__(self, code, qty: int | Decimal, box: Box | None):
-        super().__init__(code, qty)
+        super().__init__('Bulk/Box', code, qty)
         self.box = box
 
     def to_dict(self):
-        result = {
-            'type': "Bulk/Box",
-            'code': self.code,
-            'qty': self.qty
-        }
+        result = super().to_dict()
         if self.box and self.box.to_dict():
             result['packagingData'] = {}
             result['packagingData']['box'] = self.box.to_dict()

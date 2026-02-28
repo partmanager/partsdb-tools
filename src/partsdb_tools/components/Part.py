@@ -1,3 +1,4 @@
+from .OrderNumber import order_number_from_dict
 from ..packaging.from_dict import packaging_from_dict
 
 
@@ -19,7 +20,7 @@ class Part:
         self.package = None
         self.symbol = None
         self.footprint = None
-        self.order_numbers = None
+        self.order_numbers: dict | None = None
 
     def merge(self, part):
         if self.compare(part) == 0:
@@ -111,4 +112,5 @@ def part_from_dict(part_dict):
     if 'orderNumbers' in part_dict:
         part.order_numbers = {}
         for k, order_dict in part_dict['orderNumbers'].items():
-            part.order_numbers[k] = packaging_from_dict(order_dict)
+            assert k not in part.order_numbers
+            part.order_numbers[k] = order_number_from_dict(k, order_dict)

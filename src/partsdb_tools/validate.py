@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from .common import load_manufacturers
 from .common import load_files, load_part_types, load_msl_classification
+from .components.Part import part_from_dict
 from .validators.orderNumberValidator import validate_order_number_fields
 
 msl_classification = load_msl_classification()
@@ -30,6 +31,7 @@ def main():
     for f in json_files:
         parts = f['data']
         for part in parts:
+            part_class = part_from_dict(part)
             if not validate_generic_required_fields(part):
                 print("missing required field")
 

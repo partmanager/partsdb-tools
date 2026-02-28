@@ -4,7 +4,6 @@ from .Tape import tape_from_dict
 
 
 def decode_tape_reel(packaging_dict):
-    tape, reel = packaging_dict['type'].split('/')
     code = packaging_dict['code']
     qty = packaging_dict['qty']
     packaging = TapeReelPackaging(code, qty, reel=None, tape=None)
@@ -15,7 +14,7 @@ def decode_tape_reel(packaging_dict):
             packaging.tape = tape_from_dict(packaging_dict['packagingData']['tape'])
 
 packaging_map = {
-    'Paper Tape/Reel': decode_tape_reel
+    'Tape/Reel': decode_tape_reel
 }
 
 def packaging_from_dict(packaging_dict):
