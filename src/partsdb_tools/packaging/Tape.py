@@ -44,3 +44,34 @@ class Tape:
         if self.k:
             result['k'] = self.k
         return result
+
+
+def tape_from_dict(tape_dict):
+    tape = Tape(tape_dict['type'], pin_1_quadrant=None, w=None, e=None, f=None)
+    if 'pin_1_quadrant' in tape_dict:
+        tape.pin_1_quadrant = tape_dict['pin_1_quadrant']
+    if 'w' in tape_dict:
+        tape.w = tape_dict['w']
+    if 'e' in tape_dict:
+        tape.e = tape_dict['e']
+    if 'f' in tape_dict:
+        tape.f = tape_dict['f']
+    if 'so' in tape_dict:
+        tape.so= tape_dict['so']
+    if 'd' in tape_dict:
+        tape.d = tape_dict['d']
+    if 't' in tape_dict:
+        tape.t = tape_dict['t']
+    if 'p0' in tape_dict:
+        tape.p0 = tape_dict['p0']
+    if 'p1' in tape_dict:
+        tape.p1 = tape_dict['p1']
+    if 'p2' in tape_dict:
+        tape.p2 = tape_dict['p2']
+    if 'a0' in tape_dict:
+        tape.a0 = tape_dict['a0']
+    if 'b0' in tape_dict:
+        tape.b0 = tape_dict['b0']
+    if 'k' in tape_dict:
+        tape.k = tape_dict['k']
+    return tape
