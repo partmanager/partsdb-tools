@@ -1,5 +1,5 @@
 from decimal import Decimal
-from PackagingBase import PackagingBase
+from .PackagingBase import PackagingBase
 from .Box import Box
 
 

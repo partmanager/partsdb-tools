@@ -8,3 +8,6 @@ class PackagingBase:
 
     def to_dict(self):
         raise NotImplementedError("Abstract method call, subclass shall implement to_dict method")
+
+    def validate(self):
+        raise NotImplementedError("Abstract method call, subclass shall implement validate method")

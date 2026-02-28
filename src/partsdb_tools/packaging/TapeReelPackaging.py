@@ -1,5 +1,5 @@
 from decimal import Decimal
-from PackagingBase import PackagingBase
+from .PackagingBase import PackagingBase
 from .Reel import Reel
 from .Tape import Tape
 
