@@ -7,20 +7,21 @@ from src.partsdb_tools.packaging.TapeReelPackaging import TapeReelPackaging
 from src.partsdb_tools.packaging.Box import Box
 from src.partsdb_tools.packaging.Reel import Reel
 from src.partsdb_tools.packaging.Tape import Tape
+from src.partsdb_tools.units.Value import Value as D
 
 
 class Test(unittest.TestCase):
     def test_box_packaging(self):
-        box = Box(length='10mm', width='5mm', height='2mm', weight=None)
+        box = Box(length=D(10, 'mm'), width=D(5,'mm'), height=D(2,'mm'), weight=None)
         packaging = BoxPackaging('testCode', 3, box)
         packaging_dict = packaging.to_dict()
 
         self.assertEqual('Box', packaging_dict['type'])
         self.assertEqual('testCode', packaging_dict['code'])
         self.assertEqual(3, packaging_dict['qty'])
-        self.assertEqual('10mm', packaging.box.length)
-        self.assertEqual('5mm', packaging.box.width)
-        self.assertEqual('2mm', packaging.box.height)
+        self.assertEqual(10, packaging.box.length.value)
+        self.assertEqual(5, packaging.box.width.value)
+        self.assertEqual(2, packaging.box.height.value)
 
         packaging_decoded = packaging_from_dict(packaging_dict)
         self.assertIsInstance(packaging_decoded, BoxPackaging)
@@ -29,13 +30,16 @@ class Test(unittest.TestCase):
         self.assertEqual(3, packaging_decoded.qty)
 
         self.assertIsInstance(packaging_decoded.box, Box)
-        self.assertEqual('10mm', packaging_decoded.box.length)
-        self.assertEqual('5mm', packaging_decoded.box.width)
-        self.assertEqual('2mm', packaging_decoded.box.height)
+        self.assertEqual(10, packaging_decoded.box.length.value)
+        self.assertEqual('mm', packaging_decoded.box.length.unit)
+        self.assertEqual(5, packaging_decoded.box.width.value)
+        self.assertEqual('mm', packaging_decoded.box.width.unit)
+        self.assertEqual(2, packaging_decoded.box.height.value)
+        self.assertEqual('mm', packaging_decoded.box.height.unit)
         self.assertIsNone(packaging_decoded.box.weight)
 
     def test_bulk_box_packaging(self):
-        box = Box(length='10mm', width='5mm', height='2mm', weight=None)
+        box = Box(length=D(10, 'mm'), width=D(5,'mm'), height=D(2,'mm'), weight=None)
         packaging = BulkBoxPackaging('testCode', 3, box)
         packaging_dict = packaging.to_dict()
 
@@ -50,9 +54,12 @@ class Test(unittest.TestCase):
         self.assertEqual(3, packaging_decoded.qty)
 
         self.assertIsInstance(packaging_decoded.box, Box)
-        self.assertEqual('10mm', packaging_decoded.box.length)
-        self.assertEqual('5mm', packaging_decoded.box.width)
-        self.assertEqual('2mm', packaging_decoded.box.height)
+        self.assertEqual(10, packaging_decoded.box.length.value)
+        self.assertEqual('mm', packaging_decoded.box.length.unit)
+        self.assertEqual(5, packaging_decoded.box.width.value)
+        self.assertEqual('mm', packaging_decoded.box.width.unit)
+        self.assertEqual(2, packaging_decoded.box.height.value)
+        self.assertEqual('mm', packaging_decoded.box.height.unit)
         self.assertIsNone(packaging_decoded.box.weight)
 
     def test_tape_box_packaging(self):
@@ -70,8 +77,8 @@ class Test(unittest.TestCase):
         self.assertEqual(3, packaging_decoded.qty)
 
     def test_tape_reel_packaging(self):
-        reel = Reel(diameter='330mm', width='8mm')
-        tape = Tape('Paper', 'Q1', w='8mm', e=None, f=None)
+        reel = Reel(diameter=D(330, 'mm'), width=D(8, 'mm'))
+        tape = Tape('Paper', 'Q1', w=D(8, 'mm'), e=None, f=None)
         packaging = TapeReelPackaging('testCode', 3, reel, tape)
         packaging_dict = packaging.to_dict()
 
@@ -91,10 +98,13 @@ class Test(unittest.TestCase):
         self.assertEqual(3, packaging_decoded.qty)
 
         self.assertIsInstance(packaging_decoded.reel, Reel)
-        self.assertEqual('330mm', packaging_decoded.reel.diameter)
-        self.assertEqual('8mm', packaging_decoded.reel.width)
+        self.assertEqual(330, packaging_decoded.reel.diameter.value)
+        self.assertEqual('mm', packaging_decoded.reel.diameter.unit)
+        self.assertEqual(8, packaging_decoded.reel.width.value)
+        self.assertEqual('mm', packaging_decoded.reel.width.unit)
 
         self.assertIsInstance(packaging_decoded.tape, Tape)
         self.assertEqual('Paper', packaging_decoded.tape.tape_type)
         self.assertEqual('Q1', packaging_decoded.tape.pin_1_quadrant)
-        self.assertEqual('8mm', packaging_decoded.tape.w)
+        self.assertEqual(8, packaging_decoded.tape.w.value)
+        self.assertEqual('mm', packaging_decoded.tape.w.unit)

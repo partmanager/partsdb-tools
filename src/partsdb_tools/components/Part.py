@@ -20,7 +20,12 @@ class Part:
         self.package = None
         self.symbol = None
         self.footprint = None
-        self.order_numbers: dict | None = None
+        self.order_numbers: dict = {}
+
+    def add_order_number(self, order_number, force=False):
+        if order_number.order_number in self.order_numbers and not force:
+            raise ValueError('Already in order numbers')
+        self.order_numbers[order_number.order_number] = order_number
 
     def merge(self, part):
         if self.compare(part) == 0:
