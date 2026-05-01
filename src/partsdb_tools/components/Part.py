@@ -1,5 +1,5 @@
 from .OrderNumber import order_number_from_dict
-from ..packaging.from_dict import packaging_from_dict
+from .Series import series_from_dict
 
 
 class Part:
@@ -8,7 +8,7 @@ class Part:
         self.manufacturer = manufacturer
         self.part_number = part_number
         self.marking_code = None
-        self.series = None
+        self.series = []
         self.description = None
         self.product_URL = None
         self.notes = None
@@ -26,6 +26,9 @@ class Part:
         if order_number.order_number in self.order_numbers and not force:
             raise ValueError('Already in order numbers')
         self.order_numbers[order_number.order_number] = order_number
+
+    def add_series(self, series):
+        self.series.append(series)
 
     def merge(self, part):
         if self.compare(part) == 0:
@@ -49,7 +52,10 @@ class Part:
         if self.marking_code:
             result['markingCode'] = self.marking_code
         if self.series:
-            result['series'] = self.series
+            tmp = []
+            for series in self.series:
+                tmp.append(series.to_dict())
+            result['series'] = tmp
         if self.description:
             result['description'] = self.description
         if self.product_URL:
@@ -88,7 +94,7 @@ class Part:
         return self.part_type in []
 
 
-def part_from_dict(part_dict):
+def part_from_dict(part_dict) -> Part:
     part = Part(part_dict['partType'], part_dict['manufacturer'], part_dict['partNumber'])
     if 'storageConditions' in part_dict:
         part.storage_conditions = part_dict['storageConditions']
@@ -97,7 +103,8 @@ def part_from_dict(part_dict):
     if 'markingCode' in part_dict:
         part.marking_code = part_dict['markingCode']
     if 'series' in part_dict:
-        part.series = part_dict['series']
+        for series_dict in part_dict['series']:
+            part.series.append(series_from_dict(series_dict, part.manufacturer))
     if 'description' in part_dict:
         part.description = part_dict['description']
     if 'productUrl' in part_dict:
@@ -119,3 +126,4 @@ def part_from_dict(part_dict):
         for k, order_dict in part_dict['orderNumbers'].items():
             assert k not in part.order_numbers
             part.order_numbers[k] = order_number_from_dict(k, order_dict)
+    return part
