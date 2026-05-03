@@ -24,7 +24,7 @@ jobs:
       - name: Set env
         run: echo "PYTHONPATH=$PWD/src:$PYTHONPATH" >> "$GITHUB_ENV"
       - name: install dependencies
-        run: pip install -r requirements-tests.txt
+        run: pip install -r requirements.txt -r requirements-tests.txt
       - name: Print used versions
         run: python --version
       - name: Run unittests
