@@ -53,7 +53,7 @@ def main():
 
 def process_product_images(args, out_img_params: OutputImageParameters):
     product_json = load_json(args.product_file)
-    part = part_from_dict(product_json[0])
+    part = part_from_dict(product_json)
     product_images_dir = args.product_file.parent.joinpath('RAW', 'pictures', 'product')
     picture_dest_dir = args.product_file.parent.joinpath('pictures')
     picture_prefix = f"{part.manufacturer}__{part.part_number}__".replace(' ', '_')

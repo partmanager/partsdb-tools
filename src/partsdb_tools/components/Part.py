@@ -1,9 +1,13 @@
+from pathlib import Path
+
+from .File import attachment_file_from_dict
 from .OrderNumber import order_number_from_dict
 from .Series import series_from_dict
 
 
 class Part:
     def __init__(self, part_type, manufacturer, part_number):
+        self.file_location: Path | None = None
         self.part_type = part_type
         self.manufacturer = manufacturer
         self.part_number = part_number
@@ -94,8 +98,9 @@ class Part:
         return self.part_type in []
 
 
-def part_from_dict(part_dict) -> Part:
+def part_from_dict(part_dict, file_location: Path | None = None) -> Part:
     part = Part(part_dict['partType'], part_dict['manufacturer'], part_dict['partNumber'])
+    part.file_location = file_location
     if 'storageConditions' in part_dict:
         part.storage_conditions = part_dict['storageConditions']
     if 'operatingConditions' in part_dict:
@@ -116,7 +121,7 @@ def part_from_dict(part_dict) -> Part:
     if 'parameters' in part_dict:
         part.parameters = part_dict['parameters']
     if 'files' in part_dict:
-        part.files = part_dict['files']
+        part.files = files_from_dict(part_dict['files'])
     if 'package' in part_dict:
         part.package = part_dict['package']
     if 'symbol&footprint' in part_dict:
@@ -127,3 +132,9 @@ def part_from_dict(part_dict) -> Part:
             assert k not in part.order_numbers
             part.order_numbers[k] = order_number_from_dict(k, order_dict)
     return part
+
+def files_from_dict(files_list):
+    result = []
+    for file in files_list:
+        result.append(attachment_file_from_dict(file))
+    return result

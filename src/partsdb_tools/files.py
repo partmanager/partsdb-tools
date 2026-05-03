@@ -1,5 +1,4 @@
 import argparse
-import hashlib
 import shutil
 import json
 
@@ -8,6 +7,9 @@ import urllib.request
 from urllib.parse import urlparse, unquote
 
 from .common import load_files
+from .components.File import FileVersion
+from .components.Part import Part, part_from_dict
+from .detail.file_operations import load_json, find_file_by_md5sum, calculate_md5
 
 
 class FileData:
@@ -43,68 +45,81 @@ class FileData:
         return Path(unquote(urlparse(url).path).replace(' ', '_')).name
 
 
-
 def main():
     parser = argparse.ArgumentParser(description="Part DB tools")
-    parser.add_argument('-i', '--input', help="Path to the input file")
+    parser.add_argument('-i', '--input', type=Path, help="Path to the input file (*.json)")
+    parser.add_argument('-a', '--add', type=Path, help="Add attachment file into part *.json file")
     parser.add_argument('-d', '--directory', help="Path to the input directory")
-    parser.add_argument('-o', '--output', type=Path, required=True, help="Path to the output directory")
+    parser.add_argument('-o', '--output', type=Path, help="Path to the output directory")
     parser.add_argument('-v', '--validate_only', action='store_true', help="Validate files")
+    parser.add_argument('--info', type=Path, help="Show file information")
     args = parser.parse_args()
 
     if args.input:
         input_files = [args.input]
     elif args.directory:
         input_files = load_files(args.directory)
+    elif args.info:
+        show_file_info(args.info)
+        exit(1)
     else:
         print("No input or directory specified")
         exit(-1)
 
-    part_files = load_part_files(input_files)
-
-    for f in part_files:
-        f.set_destination_directory(args.output)
-        if f.exists():
-            print("file already exists, validating")
-            if not f.validate():
-                print("file validation failed")
-        else:
-            print(f"File missing: {f.path}")
-            if not args.validate_only:
-                print("Downloading")
-                f.download()
+    process_attachment_files(input_files, args.output)
 
 
-def load_part_files(parts_files):
-    files = []
+def show_file_info(filepath: Path):
+    if not filepath.is_file():
+        print("Provided path don't point to a file.")
+        return
+    file_version = FileVersion(None, filepath)
+    file_version.set_md5()
+    file_version.read_metadata()
+    file_version.process_metadata()
+    file_dict = {
+        "type": "Unknown",
+        "versions": {
+            file_version.revision: file_version.to_dict()
+        }
+    }
+    print(json.dumps(file_dict, indent='\t'))
+
+
+def process_attachment_files(parts_files, output_path: Path, download_missing = False):
     for part_file in parts_files:
-        with open(part_file) as jsonfile:
-            parts = json.load(jsonfile)
-            for part in parts:
-                for file_type in part["files"]:
-                    file = part["files"][file_type]
-                    if 'skip' in file["versions"] and file["versions"]["skip"] == True:
-                        print("Skipping file, versions not supported")
-                    else:
-                        for version in file["versions"]:
-                            file_data = FileData(
-                                filename=file["filename"] if "filename" in file else None,
-                                url=file["url"],
-                                manufacturer=part["manufacturer"],
-                                filetype=file_type,
-                                revision=version,
-                                date=file["versions"][version]["date"],
-                                md5sum=file["versions"][version]["md5sum"],
-                                path=None
-                            )
-                            files.append(file_data)
-    return files
+        parts = [part_from_dict(load_json(part_file), part_file)]
+        for part in parts:
+            process_part_attachment_files(part, output_path, download_missing)
 
 
-def calculate_md5(file):
-    with open(file, "rb") as f:
-        hash_md5 = hashlib.md5(f.read()).hexdigest()
-        return hash_md5
+def process_part_attachment_files(part: Part, output_path: Path, download_missing = False):
+            for file in part.files:
+                file_extension = Path(file.filename).suffix[1:]
+                if not file.versions_supported:
+                    print("Skipping file, versions not supported")
+                else:
+                    for key, version in file.versions.items():
+                        destination = output_path.joinpath(version.filename(part.manufacturer, part.part_number, file_extension))
+                        destination.parent.mkdir(parents=True, exist_ok=True)
+                        version.filepath = destination
+                        if destination.exists():
+                            print("file already exists, validating")
+                            if not version.validate():
+                                print("file validation failed")
+                        else:
+                            print(f"File missing: {destination}")
+                            print("Checking RAW directory for missing file.")
+                            files_dir = Path(part.file_location.parent).joinpath('RAW', 'documents')
+                            print(files_dir)
+                            found = find_file_by_md5sum(files_dir, version.md5sum)
+                            if found:
+                                print("Found file", found, "renaming and moving into destination directory")
+                                shutil.copyfile(found[0], destination)
+                            elif download_missing:
+                                print("Downloading")
+                                f.download()
+
 
 def copy_and_rename_file(input_file: Path, output_dir: Path):
     manufacturer = input_file.stem.split("__")[0]
