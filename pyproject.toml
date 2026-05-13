@@ -1,5 +1,12 @@
 [build-system]
-requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "PyExifTool", "opencv-python", "rawpy"]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
+
+[project]
+dependencies = [
+    "PyExifTool",
+    "opencv-python",
+    "rawpy"
+]

@@ -3,6 +3,7 @@ from pathlib import Path
 from .File import attachment_file_from_dict
 from .OrderNumber import order_number_from_dict
 from .Series import series_from_dict
+from .Picture import Picture
 
 
 class Part:
@@ -25,6 +26,7 @@ class Part:
         self.symbol = None
         self.footprint = None
         self.order_numbers: dict = {}
+        self.pictures = []
 
     def add_order_number(self, order_number, force=False):
         if order_number.order_number in self.order_numbers and not force:
@@ -44,6 +46,15 @@ class Part:
                 self.part_type != part.part_type):
             return -1
         return 0
+
+    def load_pictures(self):
+        if self.file_location.is_file():
+            for picture in Path(self.file_location.parent.joinpath('pictures')).rglob('*.*'):
+                if picture.is_file():
+                    if picture.suffix in ['.png', '.jpg']:
+                        pic = Picture(name=picture.name, path=picture)
+                        pic.calculate_md5()
+                        self.pictures.append(pic)
 
     def to_dict(self):
         result = {
