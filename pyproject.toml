@@ -7,6 +7,16 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "partsdb-tools"
 dynamic = ["version"]
+description = "Tools for partsdb management. Part of partmanager project."
+readme = "README"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Manufacturing",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent"
+]
 dependencies = [
     "PyExifTool",
     "opencv-python",
