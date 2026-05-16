@@ -1,14 +1,16 @@
-import hashlib
 import exiftool
 
 from datetime import datetime, date
 from pathlib import Path
 
+from ..detail.file_operations import find_file_by_md5sum, calculate_md5
+
 
 class FileVersion:
-    def __init__(self, url, filepath: Path, filename: str = None):
-        self.filepath = filepath
-        self.filename_org = filename if filename else None if self.filepath is None else self.filepath.name
+    def __init__(self, url, filepath: Path, filename: str | None = None):
+        self.src_filepath = filepath
+        self.dst_filepath: Path | None = None
+        self.filename_org = filename if filename else None if self.src_filepath is None else self.src_filepath.name
         self.url = url
         self.latest: bool = False
         self.revision: str | None = None
@@ -17,7 +19,7 @@ class FileVersion:
         self._metadata: dict | None = None
 
     def validate(self):
-        return self.md5sum == self._calculate_md5(self.filepath)
+        return self.md5sum == calculate_md5(self.src_filepath)
 
     def filename(self, manufacturer: str, part_number: str, extension: str):
         return f"{manufacturer.replace(' ', '_')}__{part_number}__{self.md5sum}.{extension}"
@@ -40,10 +42,10 @@ class FileVersion:
 
     def read_metadata(self):
         with exiftool.ExifToolHelper() as et:
-            self._metadata = et.get_metadata(str(self.filepath))[0]
+            self._metadata = et.get_metadata(str(self.src_filepath))[0]
 
     def set_md5(self):
-        self.md5sum = self._calculate_md5(self.filepath)
+        self.md5sum = calculate_md5(self.src_filepath)
         return self.md5sum
 
     def to_dict(self):
@@ -54,14 +56,9 @@ class FileVersion:
             result['URL'] = self.url
         if self.revision_date:
             result['date'] = self.revision_date.isoformat()
-        if self.filepath:
+        if self.src_filepath:
             result['filename'] = self.filename_org
         return result
-
-    @staticmethod
-    def _calculate_md5(filepath):
-        with open(filepath, "rb") as f:
-            return hashlib.md5(f.read()).hexdigest()
 
     def _get_file_date(self, xmp, pdf) -> datetime:
         dates = []
@@ -112,12 +109,15 @@ class PartFile:
                 result['versions'][version.revision] = version.to_dict()
         return result
 
-def attachment_file_from_dict(attachment_dict):
+def attachment_file_from_dict(
+        attachment_dict,
+        manufacturer_name: str,
+        file_search_dir: Path|None=None):
     attachment = PartFile(
         file_type=attachment_dict['type'],
         filename=attachment_dict['filename'],
         description=attachment_dict['desc'] if 'desc' in attachment_dict else None,
-        manufacturer=None
+        manufacturer=manufacturer_name
     )
 
     if 'id' in attachment_dict:
@@ -129,7 +129,13 @@ def attachment_file_from_dict(attachment_dict):
             url = None if 'URL' not in version_dict else version_dict['URL']
             version = FileVersion(url, None)
             version.revision = version_key
+            version.revision_date = version_dict['date'] if 'date' in version_dict else None
+            version.filename_org = version_dict['filename']
             version.md5sum = version_dict['md5']
+            if file_search_dir and version.md5sum:
+                found = find_file_by_md5sum(file_search_dir, version.md5sum)
+                if found:
+                    version.src_filepath = found[0]
             attachment.add_file_version(version)
     return attachment
 

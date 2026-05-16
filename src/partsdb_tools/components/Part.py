@@ -1,10 +1,13 @@
+import rich.repr
 from pathlib import Path
 
 from .File import attachment_file_from_dict
 from .OrderNumber import order_number_from_dict
 from .Series import series_from_dict
+from .Picture import Picture
 
 
+@rich.repr.auto
 class Part:
     def __init__(self, part_type, manufacturer, part_number):
         self.file_location: Path | None = None
@@ -25,6 +28,7 @@ class Part:
         self.symbol = None
         self.footprint = None
         self.order_numbers: dict = {}
+        self.pictures = []
 
     def add_order_number(self, order_number, force=False):
         if order_number.order_number in self.order_numbers and not force:
@@ -44,6 +48,15 @@ class Part:
                 self.part_type != part.part_type):
             return -1
         return 0
+
+    def load_pictures(self):
+        if self.file_location.is_file():
+            for picture in Path(self.file_location.parent.joinpath('pictures')).rglob('*.*'):
+                if picture.is_file():
+                    if picture.suffix in ['.png', '.jpg']:
+                        pic = Picture(name=picture.name, path=picture)
+                        pic.calculate_md5()
+                        self.pictures.append(pic)
 
     def to_dict(self):
         result = {
@@ -121,7 +134,7 @@ def part_from_dict(part_dict, file_location: Path | None = None) -> Part:
     if 'parameters' in part_dict:
         part.parameters = part_dict['parameters']
     if 'files' in part_dict:
-        part.files = files_from_dict(part_dict['files'])
+        part.files = files_from_dict(part, part_dict['files'], part.manufacturer)
     if 'package' in part_dict:
         part.package = part_dict['package']
     if 'symbol&footprint' in part_dict:
@@ -133,8 +146,9 @@ def part_from_dict(part_dict, file_location: Path | None = None) -> Part:
             part.order_numbers[k] = order_number_from_dict(k, order_dict)
     return part
 
-def files_from_dict(files_list):
+def files_from_dict(part: Part, files_list, manufacturer_name: str):
     result = []
+    files_dir = Path(part.file_location.parent).joinpath('RAW', 'documents')
     for file in files_list:
-        result.append(attachment_file_from_dict(file))
+        result.append(attachment_file_from_dict(file, manufacturer_name=manufacturer_name, file_search_dir=files_dir))
     return result
