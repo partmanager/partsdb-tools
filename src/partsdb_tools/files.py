@@ -102,7 +102,7 @@ def process_part_attachment_files(part: Part, output_path: Path, download_missin
                     for key, version in file.versions.items():
                         destination = output_path.joinpath(version.filename(part.manufacturer, part.part_number, file_extension))
                         destination.parent.mkdir(parents=True, exist_ok=True)
-                        version.filepath = destination
+                        version.src_filepath = destination
                         if destination.exists():
                             print("file already exists, validating")
                             if not version.validate():

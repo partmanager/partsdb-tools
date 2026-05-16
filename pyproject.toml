@@ -18,7 +18,15 @@ classifiers = [
     "Operating System :: OS Independent"
 ]
 dependencies = [
-    "PyExifTool",
+    "PyExifTool>=0.5.6",
     "opencv-python",
-    "rawpy"
+    "rawpy",
+    "rich"
 ]
+
+[project.scripts]
+partsdb-tools = "partsdb_tools.app:main"
+partsdb-format = "partsdb_tools.format:main"
+partsdb-pictures = "partsdb_tools.picture:main"
+partsdb-validate = "partsdb_tools.validate:main"
+partsdb-file = "partsdb_tools.files:main"
